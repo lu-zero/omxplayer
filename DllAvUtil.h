@@ -38,6 +38,8 @@ extern "C" {
     #include <libavutil/avutil.h>
     #include <libavutil/crc.h>
     #include <libavutil/fifo.h>
+    #include <libavutil/mathematics.h>
+    #include <libavutil/channel_layout.h>
     // for LIBAVCODEC_VERSION_INT:
     #include <libavcodec/avcodec.h>
   #elif (defined HAVE_FFMPEG_AVUTIL_H)

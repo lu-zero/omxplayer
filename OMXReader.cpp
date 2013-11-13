@@ -110,9 +110,9 @@ bool OMXReader::Open(std::string filename, bool dump_format)
 {
   if (!m_dllAvUtil.Load() || !m_dllAvCodec.Load() || !m_dllAvFormat.Load())
     return false;
-  
+
   m_iCurrentPts = DVD_NOPTS_VALUE;
-  m_filename    = filename; 
+  m_filename    = filename;
   m_speed       = DVD_PLAYSPEED_NORMAL;
   m_program     = UINT_MAX;
   const AVIOInterruptCB int_cb = { interrupt_cb, NULL };
@@ -132,7 +132,7 @@ bool OMXReader::Open(std::string filename, bool dump_format)
     m_filename.replace(0, 8, "http://");
 
   if(m_filename.substr(0,6) == "mms://" || m_filename.substr(0,7) == "mmsh://" || m_filename.substr(0,7) == "mmst://" || m_filename.substr(0,7) == "mmsu://" ||
-      m_filename.substr(0,7) == "http://" || 
+      m_filename.substr(0,7) == "http://" ||
       m_filename.substr(0,7) == "rtmp://" || m_filename.substr(0,6) == "udp://" ||
       m_filename.substr(0,7) == "rtsp://" )
   {
@@ -304,7 +304,7 @@ bool OMXReader::Close()
     m_dllAvUtil.av_free(m_ioContext->buffer);
     m_dllAvUtil.av_free(m_ioContext);
   }
-  
+
   m_ioContext       = NULL;
   m_pFormatContext  = NULL;
 
@@ -487,9 +487,6 @@ OMXPacket *OMXReader::Read()
     else
       pkt.pts = AV_NOPTS_VALUE;
   }
-  // we need to get duration slightly different for matroska embedded text subtitels
-  if(m_bMatroska && pStream->codec->codec_id == AV_CODEC_ID_SUBRIP && pkt.convergence_duration != 0)
-    pkt.duration = pkt.convergence_duration;
 
   if(m_bAVI && pStream->codec && pStream->codec->codec_type == AVMEDIA_TYPE_VIDEO)
   {
@@ -538,7 +535,7 @@ OMXPacket *OMXReader::Read()
     if(duration > pStream->duration)
     {
       pStream->duration = duration;
-      duration = m_dllAvUtil.av_rescale_rnd(pStream->duration, (int64_t)pStream->time_base.num * AV_TIME_BASE, 
+      duration = m_dllAvUtil.av_rescale_rnd(pStream->duration, (int64_t)pStream->time_base.num * AV_TIME_BASE,
                                             pStream->time_base.den, AV_ROUND_NEAR_INF);
       if ((m_pFormatContext->duration == (int64_t)AV_NOPTS_VALUE)
           ||  (m_pFormatContext->duration != (int64_t)AV_NOPTS_VALUE && duration > m_pFormatContext->duration))
@@ -646,8 +643,8 @@ void OMXReader::AddStream(int id)
 
   AVStream *pStream = m_pFormatContext->streams[id];
   // discard PNG stream as we don't support it, and it stops mp3 files playing with album art
-  if (pStream->codec->codec_type == AVMEDIA_TYPE_VIDEO && 
-    (pStream->codec->codec_id == CODEC_ID_PNG))
+  if (pStream->codec->codec_type == AVMEDIA_TYPE_VIDEO &&
+    (pStream->codec->codec_id == AV_CODEC_ID_PNG))
     return;
 
   switch (pStream->codec->codec_type)
@@ -820,24 +817,8 @@ bool OMXReader::GetHints(AVStream *stream, COMXStreamInfo *hints)
 
   if(stream->codec->codec_type == AVMEDIA_TYPE_VIDEO)
   {
-    hints->fpsrate       = stream->r_frame_rate.num;
-    hints->fpsscale      = stream->r_frame_rate.den;
-
-    if(m_bMatroska && stream->avg_frame_rate.den && stream->avg_frame_rate.num)
-    {
-      hints->fpsrate      = stream->avg_frame_rate.num;
-      hints->fpsscale     = stream->avg_frame_rate.den;
-    }
-    else if(stream->r_frame_rate.num && stream->r_frame_rate.den)
-    {
-      hints->fpsrate      = stream->r_frame_rate.num;
-      hints->fpsscale     = stream->r_frame_rate.den;
-    }
-    else
-    {
-      hints->fpsscale     = 0;
-      hints->fpsrate      = 0;
-    }
+    hints->fpsrate       = stream->avg_frame_rate.num;
+    hints->fpsscale      = stream->avg_frame_rate.den;
 
     if (stream->sample_aspect_ratio.num != 0)
       hints->aspect = av_q2d(stream->sample_aspect_ratio) * stream->codec->width / stream->codec->height;
@@ -845,7 +826,7 @@ bool OMXReader::GetHints(AVStream *stream, COMXStreamInfo *hints)
       hints->aspect = av_q2d(stream->codec->sample_aspect_ratio) * stream->codec->width / stream->codec->height;
     else
       hints->aspect = 0.0f;
-    if (m_bAVI && stream->codec->codec_id == CODEC_ID_H264)
+    if (m_bAVI && stream->codec->codec_id == AV_CODEC_ID_H264)
       hints->ptsinvalid = true;
     AVDictionaryEntry *rtag = m_dllAvUtil.av_dict_get(stream->metadata, "rotate", NULL, 0);
     if (rtag)
@@ -1144,7 +1125,7 @@ std::string OMXReader::GetStreamCodecName(AVStream *stream)
 
 #ifdef FF_PROFILE_DTS_HD_MA
   /* use profile to determine the DTS type */
-  if (stream->codec->codec_id == CODEC_ID_DTS)
+  if (stream->codec->codec_id == AV_CODEC_ID_DTS)
   {
     if (stream->codec->profile == FF_PROFILE_DTS_HD_MA)
       strStreamName = "dtshd_ma";
@@ -1248,8 +1229,8 @@ std::string OMXReader::GetStreamType(OMXStreamType type, unsigned int index)
   {
     if(m_streams[i].type == type &&  m_streams[i].index == index)
     {
-      if (m_streams[i].hints.codec == CODEC_ID_AC3) strcpy(sInfo, "AC3 ");
-      else if (m_streams[i].hints.codec == CODEC_ID_DTS)
+      if (m_streams[i].hints.codec == AV_CODEC_ID_AC3) strcpy(sInfo, "AC3 ");
+      else if (m_streams[i].hints.codec == AV_CODEC_ID_DTS)
       {
 #ifdef FF_PROFILE_DTS_HD_MA
         if (m_streams[i].hints.profile == FF_PROFILE_DTS_HD_MA)
@@ -1260,7 +1241,7 @@ std::string OMXReader::GetStreamType(OMXStreamType type, unsigned int index)
 #endif
           strcpy(sInfo, "DTS ");
       }
-      else if (m_streams[i].hints.codec == CODEC_ID_MP2) strcpy(sInfo, "MP2 ");
+      else if (m_streams[i].hints.codec == AV_CODEC_ID_MP2) strcpy(sInfo, "MP2 ");
       else strcpy(sInfo, "");
 
       if (m_streams[i].hints.channels == 1) strcat(sInfo, "Mono");

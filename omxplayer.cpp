@@ -1,5 +1,5 @@
 /*
- * 
+ *
  *      Copyright (C) 2012 Edgar Hucek
  *
  * This program is free software; you can redistribute it and/or modify
@@ -41,7 +41,6 @@ extern "C" {
 
 #include "DllAvUtil.h"
 #include "DllAvFormat.h"
-#include "DllAvFilter.h"
 #include "DllAvCodec.h"
 #include "linux/RBP.h"
 
@@ -329,10 +328,10 @@ void SetVideoMode(int width, int height, int fpsrate, int fpsscale, FORMAT_3D_T 
   TV_SUPPORTED_MODE_NEW_T *supported_modes = NULL;
   // query the number of modes first
   int max_supported_modes = m_BcmHost.vc_tv_hdmi_get_supported_modes_new(group, NULL, 0, &prefer_group, &prefer_mode);
- 
+
   if (max_supported_modes > 0)
     supported_modes = new TV_SUPPORTED_MODE_NEW_T[max_supported_modes];
- 
+
   if (supported_modes)
   {
     num_modes = m_BcmHost.vc_tv_hdmi_get_supported_modes_new(group,
@@ -364,11 +363,11 @@ void SetVideoMode(int width, int height, int fpsrate, int fpsscale, FORMAT_3D_T 
   score += 0;
       else if(fabs(r - 2.0f*fps) / fps < 0.002f)
   score += 1<<8;
-      else 
+      else
   score += (1<<28)/r; // bad - but prefer higher framerate
 
       /* Check size too, only choose, bigger resolutions */
-      if(width && height) 
+      if(width && height)
       {
         /* cost of too small a resolution is high */
         score += max((int)(width -w), 0) * (1<<16);
@@ -376,14 +375,14 @@ void SetVideoMode(int width, int height, int fpsrate, int fpsscale, FORMAT_3D_T 
         /* cost of too high a resolution is lower */
         score += max((int)(w-width ), 0) * (1<<4);
         score += max((int)(h-height), 0) * (1<<4);
-      } 
+      }
 
       // native is good
-      if (!tv->native) 
+      if (!tv->native)
         score += 1<<16;
 
       // interlace is bad
-      if (scan_mode != tv->scan_mode) 
+      if (scan_mode != tv->scan_mode)
         score += (1<<16);
 
       // wanting 3D but not getting it is a negative
@@ -396,10 +395,10 @@ void SetVideoMode(int width, int height, int fpsrate, int fpsscale, FORMAT_3D_T 
       float par = get_display_aspect_ratio((HDMI_ASPECT_T)tv->aspect_ratio)*(float)tv->height/(float)tv->width;
       score += fabs(par - 1.0f) * (1<<12);
 
-      /*printf("mode %dx%d@%d %s%s:%x par=%.2f score=%d\n", tv->width, tv->height, 
+      /*printf("mode %dx%d@%d %s%s:%x par=%.2f score=%d\n", tv->width, tv->height,
              tv->frame_rate, tv->native?"N":"", tv->scan_mode?"I":"", tv->code, par, score);*/
 
-      if (score < best_score) 
+      if (score < best_score)
       {
         tv_found = tv;
         best_score = score;
@@ -409,7 +408,7 @@ void SetVideoMode(int width, int height, int fpsrate, int fpsscale, FORMAT_3D_T 
 
   if(tv_found)
   {
-    printf("Output mode %d: %dx%d@%d %s%s:%x\n", tv_found->code, tv_found->width, tv_found->height, 
+    printf("Output mode %d: %dx%d@%d %s%s:%x\n", tv_found->code, tv_found->width, tv_found->height,
            tv_found->frame_rate, tv_found->native?"N":"", tv_found->scan_mode?"I":"", tv_found->code);
     // if we are closer to ntsc version of framerate, let gpu know
     int ifps = (int)(fps+0.5f);
@@ -587,7 +586,7 @@ int main(int argc, char *argv[])
     { "refresh",      no_argument,        NULL,          'r' },
     { "genlog",       no_argument,        NULL,          'g' },
     { "sid",          required_argument,  NULL,          't' },
-    { "pos",          required_argument,  NULL,          'l' },    
+    { "pos",          required_argument,  NULL,          'l' },
     { "blank",        no_argument,        NULL,          'b' },
     { "font",         required_argument,  NULL,          font_opt },
     { "italic-font",  required_argument,  NULL,          italic_font_opt },
@@ -622,7 +621,7 @@ int main(int argc, char *argv[])
 
   while ((c = getopt_long(argc, argv, "wihvkn:l:o:cslbpd3:yzt:rg", longopts, NULL)) != -1)
   {
-    switch (c) 
+    switch (c)
     {
       case 'r':
         m_refresh = true;
@@ -829,7 +828,7 @@ int main(int argc, char *argv[])
       m_has_external_subtitles = true;
     }
   }
-    
+
   bool m_audio_extension = false;
   const CStdString m_musicExtensions = ".nsv|.m4a|.flac|.aac|.strm|.pls|.rm|.rma|.mpa|.wav|.wma|.ogg|.mp3|.mp2|.m3u|.mod|.amf|.669|.dmf|.dsm|.far|.gdm|"
                  ".imf|.it|.m15|.med|.okt|.s3m|.stm|.sfx|.ult|.uni|.xm|.sid|.ac3|.dts|.cue|.aif|.aiff|.wpl|.ape|.mac|.mpc|.mp+|.mpp|.shn|.zip|.rar|"
@@ -905,7 +904,7 @@ int main(int argc, char *argv[])
 
   if(m_audio_index_use != -1)
     m_omx_reader.SetActiveStream(OMXSTREAM_AUDIO, m_audio_index_use);
-          
+
   if(m_has_video && m_refresh)
   {
     memset(&tv_state, 0, sizeof(TV_DISPLAY_STATE_T));
@@ -931,7 +930,7 @@ int main(int argc, char *argv[])
         printf("Seeking start of video to %i seconds\n", m_seek_pos);
         m_omx_reader.SeekTime(m_seek_pos * 1000.0f, false, &startpts);  // from seconds to DVD_TIME_BASE
   }
-  
+
   if (m_orientation >= 0)
     m_hints_video.orientation = m_orientation;
   if(m_has_video && !m_player_video.Open(m_hints_video, m_av_clock, DestRect, m_Deinterlace ? VS_DEINTERLACEMODE_FORCE:m_NoDeinterlace ? VS_DEINTERLACEMODE_OFF:VS_DEINTERLACEMODE_AUTO,
@@ -993,7 +992,7 @@ int main(int argc, char *argv[])
       m_BcmHost.vc_tv_hdmi_audio_supported(EDID_AudioFormat_eDTS, 2, EDID_AudioSampleRate_e44KHz, EDID_AudioSampleSize_16bit ) != 0)
     m_passthrough = false;
 
-  if(m_has_audio && !m_player_audio.Open(m_hints_audio, m_av_clock, &m_omx_reader, deviceString, 
+  if(m_has_audio && !m_player_audio.Open(m_hints_audio, m_av_clock, &m_omx_reader, deviceString,
                                          m_passthrough, m_use_hw_audio,
                                          m_boost_on_downmix, m_thread_player, audio_queue_size, audio_fifo_size))
     goto do_exit;
@@ -1017,7 +1016,7 @@ int main(int argc, char *argv[])
 
     double now = m_av_clock->GetAbsoluteClock();
     bool update = false;
-    if (m_last_check_time == 0.0 || m_last_check_time + DVD_MSEC_TO_TIME(20) <= now) 
+    if (m_last_check_time == 0.0 || m_last_check_time + DVD_MSEC_TO_TIME(20) <= now)
       update = true;
 
      if (update) {
@@ -1419,7 +1418,7 @@ int main(int argc, char *argv[])
         video_fifo_low = m_has_video && video_fifo < threshold;
         video_fifo_high = !m_has_video || (video_pts != DVD_NOPTS_VALUE && video_fifo > m_threshold);
       }
-      CLog::Log(LOGDEBUG, "Normal M:%.0f (A:%.0f V:%.0f) P:%d A:%.2f V:%.2f/T:%.2f (%d,%d,%d,%d) A:%d%% V:%d%% (%.2f,%.2f)\n", stamp, audio_pts, video_pts, m_av_clock->OMXIsPaused(), 
+      CLog::Log(LOGDEBUG, "Normal M:%.0f (A:%.0f V:%.0f) P:%d A:%.2f V:%.2f/T:%.2f (%d,%d,%d,%d) A:%d%% V:%d%% (%.2f,%.2f)\n", stamp, audio_pts, video_pts, m_av_clock->OMXIsPaused(),
         audio_pts == DVD_NOPTS_VALUE ? 0.0:audio_fifo, video_pts == DVD_NOPTS_VALUE ? 0.0:video_fifo, m_threshold, audio_fifo_low, video_fifo_low, audio_fifo_high, video_fifo_high,
         m_player_audio.GetLevel(), m_player_video.GetLevel(), m_player_audio.GetDelay(), (float)m_player_audio.GetCacheTotal());
 

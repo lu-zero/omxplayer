@@ -3,7 +3,7 @@ OMXPlayer
 
 OMXPlayer is a commandline OMX player for the Raspberry Pi. It was developed as
 a testbed for the XBMC Raspberry PI implementation and is quite handy to use
-standalone. 
+standalone.
 
 Downloading OMXPlayer
 ---------------------
@@ -17,20 +17,35 @@ GCC version 4.7 is required.
 
 ### Cross Compiling
 
+#### Autotools
+
+If you are using Gentoo or you have a cross development buildroot you can just
+issue
+
+    autoreconf -i
+    ./configure --host armv6j-hardfloat-linux-gnueabi
+    make
+
+#### Legacy Makefile
+
 You need the content of your sdcard somewhere mounted or copied. There might be
 development headers to install on the running Pi system for the crosscompiling.
 
 Edit Makefile.include and change the settings according your locations.
 
-    make ffmpeg
+    make libav
     make
     make dist
 
 Installing OMXPlayer
 --------------------
 
-Copy over `omxplayer-dist/*` to the Pi `/`. You may want to specify a valid font
-path inside the `omxplayer` shell script.
+### Legacy Makefile
+
+You may want to override the font path inside the `omxplayer` shell script.
+
+    make DESTDIR=/path/to/the/sd install
+
 
 ### Compiling on the Pi
 
@@ -38,7 +53,7 @@ You can also compile it on the PI the native way ;)
 Run this script (which will install packages and update firmware)
     ./prepare-native-raspbian.sh
 and build with
-    make ffmpeg
+    make libav
     make
 
 Using OMXPlayer
@@ -161,7 +176,7 @@ For example:
     EXIT:esc
     PAUSE:p
     #Note that this next line has a space after the :
-    PAUSE: 
+    PAUSE:
     REWIND:left
     SEEK_FORWARD_SMALL:hex 0x4f43
     EXIT:q

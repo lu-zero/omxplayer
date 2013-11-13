@@ -24,7 +24,6 @@
 #include "DllAvCodec.h"
 #include "DllAvFormat.h"
 #include "DllAvUtil.h"
-#include "DllSwResample.h"
 
 #include "OMXStreamInfo.h"
 #include "utils/PCMRemap.h"
@@ -68,7 +67,7 @@ protected:
   bool m_bGotFrame;
   DllAvCodec m_dllAvCodec;
   DllAvUtil m_dllAvUtil;
-  DllSwResample m_dllSwResample;
+  DllAvResample m_dllAvResample;
 
   void BuildChannelMap();
 };

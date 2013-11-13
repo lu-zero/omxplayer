@@ -325,7 +325,7 @@ bool COMXAudio::Initialize(const CStdString& device, int iChannels, enum PCMChan
   if(m_Passthrough || m_HWDecode)
     SetCodingType(hints.codec);
   else
-    SetCodingType(CODEC_ID_PCM_S16LE);
+    SetCodingType(AV_CODEC_ID_PCM_S16LE);
 
   if(hints.extrasize > 0 && hints.extradata != NULL)
   {
@@ -495,7 +495,7 @@ bool COMXAudio::Initialize(const CStdString& device, int iChannels, enum PCMChan
   }
 
   omx_err = m_omx_decoder.AllocInputBuffers();
-  if(omx_err != OMX_ErrorNone) 
+  if(omx_err != OMX_ErrorNone)
   {
     CLog::Log(LOGERROR, "COMXAudio::Initialize - Error alloc buffers 0x%08x", omx_err);
     return false;
@@ -534,20 +534,20 @@ bool COMXAudio::Initialize(const CStdString& device, int iChannels, enum PCMChan
       CLog::Log(LOGERROR, "%s::%s - OMX_EmptyThisBuffer() failed with result(0x%x)\n", CLASSNAME, __func__, omx_err);
       return false;
     }
-  } 
+  }
   else if(m_HWDecode)
   {
     // send decoder config
     if(m_extrasize > 0 && m_extradata != NULL)
     {
       OMX_BUFFERHEADERTYPE *omx_buffer = m_omx_decoder.GetInputBuffer();
-  
+
       if(omx_buffer == NULL)
       {
         CLog::Log(LOGERROR, "%s::%s - buffer error 0x%08x", CLASSNAME, __func__, omx_err);
         return false;
       }
-  
+
       omx_buffer->nOffset = 0;
       omx_buffer->nFilledLen = m_extrasize;
       if(omx_buffer->nFilledLen > omx_buffer->nAllocLen)
@@ -559,7 +559,7 @@ bool COMXAudio::Initialize(const CStdString& device, int iChannels, enum PCMChan
       memset((unsigned char *)omx_buffer->pBuffer, 0x0, omx_buffer->nAllocLen);
       memcpy((unsigned char *)omx_buffer->pBuffer, m_extradata, omx_buffer->nFilledLen);
       omx_buffer->nFlags = OMX_BUFFERFLAG_CODECCONFIG | OMX_BUFFERFLAG_ENDOFFRAME;
-  
+
       omx_err = m_omx_decoder.EmptyThisBuffer(omx_buffer);
       if (omx_err != OMX_ErrorNone)
       {
@@ -643,7 +643,7 @@ void COMXAudio::Flush()
   m_omx_tunnel_decoder.Flush();
   if(!m_Passthrough)
     m_omx_tunnel_mixer.Flush();
-  
+
   m_last_pts      = DVD_NOPTS_VALUE;
   m_LostSync      = true;
   m_setStartTime  = true;
@@ -676,7 +676,7 @@ void COMXAudio::SetVolume(float fVolume)
     ApplyVolume();
 }
 
-float COMXAudio::GetVolume() 
+float COMXAudio::GetVolume()
 {
   return m_Mute ? VOLUME_MINIMUM : m_CurrentVolume;
 }
@@ -1081,13 +1081,13 @@ bool COMXAudio::IsEOS()
 void COMXAudio::SetCodingType(AVCodecID codec)
 {
   switch(codec)
-  { 
-    case CODEC_ID_DTS:
+  {
+    case AV_CODEC_ID_DTS:
       CLog::Log(LOGDEBUG, "COMXAudio::SetCodingType OMX_AUDIO_CodingDTS\n");
       m_eEncoding = OMX_AUDIO_CodingDTS;
       break;
-    case CODEC_ID_AC3:
-    case CODEC_ID_EAC3:
+    case AV_CODEC_ID_AC3:
+    case AV_CODEC_ID_EAC3:
       CLog::Log(LOGDEBUG, "COMXAudio::SetCodingType OMX_AUDIO_CodingDDP\n");
       m_eEncoding = OMX_AUDIO_CodingDDP;
       break;
@@ -1095,38 +1095,38 @@ void COMXAudio::SetCodingType(AVCodecID codec)
       CLog::Log(LOGDEBUG, "COMXAudio::SetCodingType OMX_AUDIO_CodingPCM\n");
       m_eEncoding = OMX_AUDIO_CodingPCM;
       break;
-  } 
+  }
 }
 
 bool COMXAudio::CanHWDecode(AVCodecID codec)
 {
   switch(codec)
-  { 
+  {
     /*
-    case CODEC_ID_VORBIS:
+    case AV_CODEC_ID_VORBIS:
       CLog::Log(LOGDEBUG, "COMXAudio::CanHWDecode OMX_AUDIO_CodingVORBIS\n");
       m_eEncoding = OMX_AUDIO_CodingVORBIS;
       m_HWDecode = true;
       break;
-    case CODEC_ID_AAC:
+    case AV_CODEC_ID_AAC:
       CLog::Log(LOGDEBUG, "COMXAudio::CanHWDecode OMX_AUDIO_CodingAAC\n");
       m_eEncoding = OMX_AUDIO_CodingAAC;
       m_HWDecode = true;
       break;
     */
-    case CODEC_ID_MP2:
-    case CODEC_ID_MP3:
+    case AV_CODEC_ID_MP2:
+    case AV_CODEC_ID_MP3:
       CLog::Log(LOGDEBUG, "COMXAudio::CanHWDecode OMX_AUDIO_CodingMP3\n");
       m_eEncoding = OMX_AUDIO_CodingMP3;
       m_HWDecode = true;
       break;
-    case CODEC_ID_DTS:
+    case AV_CODEC_ID_DTS:
       CLog::Log(LOGDEBUG, "COMXAudio::CanHWDecode OMX_AUDIO_CodingDTS\n");
       m_eEncoding = OMX_AUDIO_CodingDTS;
       m_HWDecode = true;
       break;
-    case CODEC_ID_AC3:
-    case CODEC_ID_EAC3:
+    case AV_CODEC_ID_AC3:
+    case AV_CODEC_ID_EAC3:
       CLog::Log(LOGDEBUG, "COMXAudio::CanHWDecode OMX_AUDIO_CodingDDP\n");
       m_eEncoding = OMX_AUDIO_CodingDDP;
       m_HWDecode = true;
@@ -1136,7 +1136,7 @@ bool COMXAudio::CanHWDecode(AVCodecID codec)
       m_eEncoding = OMX_AUDIO_CodingPCM;
       m_HWDecode = false;
       break;
-  } 
+  }
 
   return m_HWDecode;
 }
@@ -1146,35 +1146,35 @@ bool COMXAudio::HWDecode(AVCodecID codec)
   bool ret = false;
 
   switch(codec)
-  { 
+  {
     /*
-    case CODEC_ID_VORBIS:
-      CLog::Log(LOGDEBUG, "COMXAudio::HWDecode CODEC_ID_VORBIS\n");
+    case AV_CODEC_ID_VORBIS:
+      CLog::Log(LOGDEBUG, "COMXAudio::HWDecode AV_CODEC_ID_VORBIS\n");
       ret = true;
       break;
-    case CODEC_ID_AAC:
-      CLog::Log(LOGDEBUG, "COMXAudio::HWDecode CODEC_ID_AAC\n");
+    case AV_CODEC_ID_AAC:
+      CLog::Log(LOGDEBUG, "COMXAudio::HWDecode AV_CODEC_ID_AAC\n");
       ret = true;
       break;
     */
-    case CODEC_ID_MP2:
-    case CODEC_ID_MP3:
-      CLog::Log(LOGDEBUG, "COMXAudio::HWDecode CODEC_ID_MP2 / CODEC_ID_MP3\n");
+    case AV_CODEC_ID_MP2:
+    case AV_CODEC_ID_MP3:
+      CLog::Log(LOGDEBUG, "COMXAudio::HWDecode AV_CODEC_ID_MP2 / AV_CODEC_ID_MP3\n");
       ret = true;
       break;
-    case CODEC_ID_DTS:
-      CLog::Log(LOGDEBUG, "COMXAudio::HWDecode CODEC_ID_DTS\n");
+    case AV_CODEC_ID_DTS:
+      CLog::Log(LOGDEBUG, "COMXAudio::HWDecode AV_CODEC_ID_DTS\n");
       ret = true;
       break;
-    case CODEC_ID_AC3:
-    case CODEC_ID_EAC3:
-      CLog::Log(LOGDEBUG, "COMXAudio::HWDecode CODEC_ID_AC3 / CODEC_ID_EAC3\n");
+    case AV_CODEC_ID_AC3:
+    case AV_CODEC_ID_EAC3:
+      CLog::Log(LOGDEBUG, "COMXAudio::HWDecode AV_CODEC_ID_AC3 / AV_CODEC_ID_EAC3\n");
       ret = true;
       break;
     default:
       ret = false;
       break;
-  } 
+  }
 
   return ret;
 }
@@ -1275,31 +1275,31 @@ unsigned int COMXAudio::SyncDTS(BYTE* pData, unsigned int iSize)
 
   for(skip = 0; iSize - skip > 8; ++skip, ++pData)
   {
-    if (pData[0] == 0x7F && pData[1] == 0xFE && pData[2] == 0x80 && pData[3] == 0x01) 
+    if (pData[0] == 0x7F && pData[1] == 0xFE && pData[2] == 0x80 && pData[3] == 0x01)
     {
       /* 16bit le */
-      littleEndian = true; 
+      littleEndian = true;
       dtsBlocks    = ((pData[4] >> 2) & 0x7f) + 1;
       m_dtsParam.nFormat = 0x1 | 0x2;
     }
-    else if (pData[0] == 0x1F && pData[1] == 0xFF && pData[2] == 0xE8 && pData[3] == 0x00 && pData[4] == 0x07 && (pData[5] & 0xF0) == 0xF0) 
+    else if (pData[0] == 0x1F && pData[1] == 0xFF && pData[2] == 0xE8 && pData[3] == 0x00 && pData[4] == 0x07 && (pData[5] & 0xF0) == 0xF0)
     {
       /* 14bit le */
       littleEndian = true;
       dtsBlocks    = (((pData[4] & 0x7) << 4) | (pData[7] & 0x3C) >> 2) + 1;
       m_dtsParam.nFormat = 0x1 | 0x0;
     }
-    else if (pData[1] == 0x7F && pData[0] == 0xFE && pData[3] == 0x80 && pData[2] == 0x01) 
+    else if (pData[1] == 0x7F && pData[0] == 0xFE && pData[3] == 0x80 && pData[2] == 0x01)
     {
-      /* 16bit be */ 
+      /* 16bit be */
       littleEndian = false;
       dtsBlocks    = ((pData[5] >> 2) & 0x7f) + 1;
       m_dtsParam.nFormat = 0x0 | 0x2;
     }
-    else if (pData[1] == 0x1F && pData[0] == 0xFF && pData[3] == 0xE8 && pData[2] == 0x00 && pData[5] == 0x07 && (pData[4] & 0xF0) == 0xF0) 
+    else if (pData[1] == 0x1F && pData[0] == 0xFF && pData[3] == 0xE8 && pData[2] == 0x00 && pData[5] == 0x07 && (pData[4] & 0xF0) == 0xF0)
     {
       /* 14bit be */
-      littleEndian = false; 
+      littleEndian = false;
       dtsBlocks    = (((pData[5] & 0x7) << 4) | (pData[6] & 0x3C) >> 2) + 1;
       m_dtsParam.nFormat = 0x0 | 0x0;
     }
@@ -1337,13 +1337,13 @@ unsigned int COMXAudio::SyncDTS(BYTE* pData, unsigned int iSize)
 
     switch(dtsBlocks << 5)
     {
-      case 512 : 
+      case 512 :
         m_dtsParam.nDtsType = 1;
         break;
-      case 1024: 
+      case 1024:
         m_dtsParam.nDtsType = 2;
         break;
-      case 2048: 
+      case 2048:
         m_dtsParam.nDtsType = 3;
         break;
       default:

@@ -24,7 +24,6 @@
 
 #include "DllAvUtil.h"
 #include "DllAvFormat.h"
-#include "DllAvFilter.h"
 #include "DllAvCodec.h"
 
 #include "utils/PCMRemap.h"
@@ -69,7 +68,7 @@ protected:
   bool                      m_hw_decode;
   bool                      m_boost_on_downmix;
   bool                      m_bAbort;
-  bool                      m_use_thread; 
+  bool                      m_use_thread;
   bool                      m_flush;
   enum PCMChannels          *m_pChannelMap;
   unsigned int              m_cached_size;
@@ -95,7 +94,7 @@ public:
   void Flush();
   bool AddPacket(OMXPacket *pkt);
   bool OpenAudioCodec();
-  void CloseAudioCodec();      
+  void CloseAudioCodec();
   bool IsPassthrough(COMXStreamInfo hints);
   bool OpenDecoder();
   bool CloseDecoder();

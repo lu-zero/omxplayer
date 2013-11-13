@@ -440,7 +440,7 @@ bool CBitstreamConverter::Open(enum AVCodecID codec, uint8_t *in_extradata, int 
 
   switch(codec)
   {
-    case CODEC_ID_H264:
+    case AV_CODEC_ID_H264:
       if (in_extrasize < 7 || in_extradata == NULL)
       {
         CLog::Log(LOGERROR, "CBitstreamConverter::Open avcC data too small or missing\n");
@@ -509,7 +509,7 @@ bool CBitstreamConverter::Open(enum AVCodecID codec, uint8_t *in_extradata, int 
 
             in_extradata[4] = 0xFF;
             m_convert_3byteTo4byteNALSize = true;
-           
+
             m_extradata = (uint8_t *)malloc(in_extrasize);
             memcpy(m_extradata, in_extradata, in_extrasize);
             m_extrasize = in_extrasize;
@@ -584,12 +584,12 @@ bool CBitstreamConverter::Convert(uint8_t *pData, int iSize)
 
   if (pData)
   {
-    if(m_codec == CODEC_ID_H264)
+    if(m_codec == AV_CODEC_ID_H264)
     {
       if(m_to_annexb)
       {
         int demuxer_bytes = iSize;
-  
+
         uint8_t *demuxer_content = pData;
 
         if (m_convert_bitstream)
@@ -624,7 +624,7 @@ bool CBitstreamConverter::Convert(uint8_t *pData, int iSize)
       {
         m_inputBuffer = pData;
         m_inputSize   = iSize;
-  
+
         if (m_convert_bytestream)
         {
           if(m_convertBuffer)
@@ -636,7 +636,7 @@ bool CBitstreamConverter::Convert(uint8_t *pData, int iSize)
 
           // convert demuxer packet from bytestream (AnnexB) to bitstream
           AVIOContext *pb;
-  
+
           if(m_dllAvFormat->avio_open_dyn_buf(&pb) < 0)
           {
             return false;
@@ -669,7 +669,7 @@ bool CBitstreamConverter::Convert(uint8_t *pData, int iSize)
             m_dllAvFormat->avio_write(pb, nal_start, nal_size);
             nal_start += nal_size;
           }
-  
+
           m_convertSize = m_dllAvFormat->avio_close_dyn_buf(pb, &m_convertBuffer);
         }
         return true;
@@ -694,7 +694,7 @@ int CBitstreamConverter::GetConvertSize()
   if((m_convert_bitstream || m_convert_bytestream || m_convert_3byteTo4byteNALSize) && m_convertBuffer != NULL)
     return m_convertSize;
   else
-    return m_inputSize; 
+    return m_inputSize;
 }
 
 uint8_t *CBitstreamConverter::GetExtraData()

@@ -111,7 +111,7 @@ bool OMXPlayerVideo::Open(COMXStreamInfo &hints, OMXClock *av_clock, const CRect
 {
   if (!m_dllAvUtil.Load() || !m_dllAvCodec.Load() || !m_dllAvFormat.Load() || !av_clock)
     return false;
-  
+
   if(ThreadHandle())
     Close();
 
@@ -198,8 +198,8 @@ bool OMXPlayerVideo::Decode(OMXPacket *pkt)
 
   bool ret = false;
 
-  if(pkt->hints.codec == CODEC_ID_TEXT ||
-     pkt->hints.codec == CODEC_ID_SSA )
+  if(pkt->hints.codec == AV_CODEC_ID_TEXT ||
+     pkt->hints.codec == AV_CODEC_ID_SSA )
   {
     if(!m_pSubtitleCodec)
     {
@@ -336,7 +336,7 @@ void OMXPlayerVideo::Process()
       omx_pkt = NULL;
     }
     UnLockDecoder();
-    
+
     OMXPacket *subtitle_pkt = m_decoder->GetText();
 
     if(subtitle_pkt)
@@ -358,13 +358,13 @@ void OMXPlayerVideo::FlushSubtitles()
   LockSubtitles();
   while (!m_subtitle_packets.empty())
   {
-    OMXPacket *pkt = m_subtitle_packets.front(); 
+    OMXPacket *pkt = m_subtitle_packets.front();
     m_subtitle_packets.pop_front();
     OMXReader::FreePacket(pkt);
   }
   while (!m_overlays.empty())
   {
-    COMXOverlay *overlay = m_overlays.front(); 
+    COMXOverlay *overlay = m_overlays.front();
     m_overlays.pop_front();
     delete overlay;
   }
@@ -382,7 +382,7 @@ void OMXPlayerVideo::Flush()
   m_flush = true;
   while (!m_packets.empty())
   {
-    OMXPacket *pkt = m_packets.front(); 
+    OMXPacket *pkt = m_packets.front();
     m_packets.pop_front();
     OMXReader::FreePacket(pkt);
   }
@@ -496,7 +496,7 @@ std::string OMXPlayerVideo::GetText()
   LockSubtitles();
   if (!m_subtitle_packets.empty())
   {
-    pkt = m_subtitle_packets.front(); 
+    pkt = m_subtitle_packets.front();
     if(!m_overlays.empty())
     {
       COMXOverlay *overlay = m_overlays.front();

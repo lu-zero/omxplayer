@@ -97,7 +97,7 @@ bool OMXPlayerAudio::Open(COMXStreamInfo &hints, OMXClock *av_clock, OMXReader *
 
   if (!m_dllAvUtil.Load() || !m_dllAvCodec.Load() || !m_dllAvFormat.Load() || !av_clock)
     return false;
-  
+
   m_dllAvFormat.av_register_all();
 
   m_hints       = hints;
@@ -185,15 +185,15 @@ bool OMXPlayerAudio::Decode(OMXPacket *pkt)
     return true;
 
   if(!m_omx_reader->IsActive(OMXSTREAM_AUDIO, pkt->stream_index))
-    return true; 
+    return true;
 
   int channels = pkt->hints.channels;
 
   unsigned int old_bitrate = m_hints.bitrate;
   unsigned int new_bitrate = pkt->hints.bitrate;
 
-  /* only check bitrate changes on CODEC_ID_DTS, CODEC_ID_AC3, CODEC_ID_EAC3 */
-  if(m_hints.codec != CODEC_ID_DTS && m_hints.codec != CODEC_ID_AC3 && m_hints.codec != CODEC_ID_EAC3)
+  /* only check bitrate changes on AV_CODEC_ID_DTS, AV_CODEC_ID_AC3, AV_CODEC_ID_EAC3 */
+  if(m_hints.codec != AV_CODEC_ID_DTS && m_hints.codec != AV_CODEC_ID_AC3 && m_hints.codec != AV_CODEC_ID_EAC3)
   {
     new_bitrate = old_bitrate = 0;
   }
@@ -308,7 +308,7 @@ void OMXPlayerAudio::Process()
       m_packets.pop_front();
     }
     UnLock();
-    
+
     LockDecoder();
     if(m_flush && omx_pkt)
     {
@@ -335,7 +335,7 @@ void OMXPlayerAudio::Flush()
   m_flush = true;
   while (!m_packets.empty())
   {
-    OMXPacket *pkt = m_packets.front(); 
+    OMXPacket *pkt = m_packets.front();
     m_packets.pop_front();
     OMXReader::FreePacket(pkt);
   }
@@ -398,15 +398,15 @@ bool OMXPlayerAudio::IsPassthrough(COMXStreamInfo hints)
 
   bool passthrough = false;
 
-  if(hints.codec == CODEC_ID_AC3)
+  if(hints.codec == AV_CODEC_ID_AC3)
   {
     passthrough = true;
   }
-  if(hints.codec == CODEC_ID_EAC3)
+  if(hints.codec == AV_CODEC_ID_EAC3)
   {
     passthrough = true;
   }
-  if(hints.codec == CODEC_ID_DTS)
+  if(hints.codec == AV_CODEC_ID_DTS)
   {
     passthrough = true;
   }
@@ -435,10 +435,10 @@ bool OMXPlayerAudio::OpenDecoder()
                            m_av_clock, m_passthrough, m_hw_decode, m_fifo_size);
 
   m_codec_name = m_omx_reader->GetCodecName(OMXSTREAM_AUDIO);
-  
+
   if(!bAudioRenderOpen)
   {
-    delete m_decoder; 
+    delete m_decoder;
     m_decoder = NULL;
     return false;
   }
@@ -524,5 +524,5 @@ void OMXPlayerAudio::WaitCompletion()
     OMXClock::OMXSleep(50);
     nTimeOut -= 50;
   }
-} 
+}
 
